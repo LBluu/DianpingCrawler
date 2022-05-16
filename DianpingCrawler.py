@@ -34,7 +34,7 @@ class Crawler():
         获取店铺评论总数量（两种页面格式，对应两种方法）
         '''
         # 第二种获取页面内容方法--直接下载页面
-        driver = webdriver.Chrome('/MT比赛/DianpingCrawler/chromedriver')
+        driver = webdriver.Chrome('/Users/bu/PycharmProject/MT比赛/DianpingCrawler/chromedriver')
         driver.get(self.info_url)
         time.sleep(30)
         # 暂停30s，在这个时间进行登陆操作
@@ -90,8 +90,14 @@ class Crawler():
 
         # 从中得到字体
         font = re.findall('background-image: url\((.*?)\);', css_content, re.S)  # 提取链接
-        font_url = 'http:{}'.format(font[0])
-        font_content = requests.get(font_url).text
+        maxnum = 0
+
+        for i in font:
+            font_url = 'http:{}'.format(i)
+            temp_font_content = requests.get(font_url).text
+            if len(temp_font_content) > maxnum:
+                font_content = temp_font_content
+                maxnum = len(font_content)
         with open(self.fold_path+'/font.svg', 'w', encoding='utf-8') as f:  # 保存文件
             f.write(font_content)
         return
@@ -112,7 +118,7 @@ class Crawler():
         for record in inf:
             inf_copy = record
             svgmti = re.findall('<svgmtsi class="(.*?)">', record)
-            # 对于每一个标签
+        # 对于每一个标签
             for class_name in svgmti:
                 XY = re.findall('.%s{background:-(.*?)px -(.*?)px;}' % class_name, css_content, re.S)
                 #获得坐标
